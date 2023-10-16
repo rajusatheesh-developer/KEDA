@@ -80,6 +80,33 @@ spec:
     target: azure-functions
 ```
 
+# Authentication Parameters
+
+When working with Azure Service Bus, you have two primary authentication methods: Connection String Authentication and Pod Identity-based Authentication.
+
+## Connection String Authentication
+
+You can authenticate using a connection string for the Azure Service Bus Namespace. Supported formats include:
+
+- **With SharedAccessKey**:
+    ```
+    Endpoint=sb://<sb>.servicebus.windows.net/;SharedAccessKeyName=<key name>;SharedAccessKey=<key value>
+    ```
+
+- **With SharedAccessSignature**:
+    ```
+    Endpoint=sb://<sb>.servicebus.windows.net/;SharedAccessSignature=SharedAccessSignature sig=<signature-string>&se=<expiry>&skn=<keyName>&sr=<URL-encoded-resourceURI>
+    ```
+
+Refer to [this page](#) for more information on using Shared Access Signatures.
+
+## Pod Identity-Based Authentication
+
+For pod-level authentication, you can use Azure AD Pod Identity or Azure AD Workload Identity providers.
+
+These authentication methods allow you to securely access Azure Service Bus resources from your Kubernetes pods using identity-based authentication.
+
+
 Adjust the trigger configuration to match your event source and authentication requirements.
 For furthur reading, please refer: https://keda.sh/docs/2.11/scalers/
 # Deploy and Configure Autoscaling
@@ -100,6 +127,33 @@ spec:
 triggers:
   - type: azure-functions-trigger
 ```
+# Parameter List for Azure Service Bus Scaler
+
+The following is a list of parameters for configuring the Azure Service Bus Scaler, which allows you to perform autoscaling based on the message count in your Azure Service Bus queue or topic.
+
+- **messageCount**: The amount of active messages in your Azure Service Bus queue or topic to scale on.
+
+- **activationMessageCount**: The target value for activating the scaler. Learn more about activation [here](#). (Default: 0, Optional)
+
+- **queueName**: Name of the Azure Service Bus queue to scale on. (Optional)
+
+- **topicName**: Name of the Azure Service Bus topic to scale on. (Optional)
+
+- **subscriptionName**: Name of the Azure Service Bus queue to scale on. (Optional*, Required when topicName is specified)
+
+- **namespace**: Name of the Azure Service Bus namespace that contains your queue or topic. (Optional*, Required when pod identity is used)
+
+- **connectionFromEnv**: Name of the environment variable your deployment uses to get the connection string of the Azure Service Bus namespace. (Optional)
+
+- **useRegex**: Provides an indication of whether or not a regex is used in the `queueName` or `subscriptionName` parameters. (Values: true, false, Default: false, Optional)
+
+- **operation**: Defines how to compute the number of messages when `useRegex` is set to true. (Values: sum, max, or avg, Default: sum, Optional).
+
+- **cloud**: Name of the cloud environment that the service bus belongs to. Must be a known Azure cloud environment, or "Private" for Azure Stack Hub or Air Gapped clouds. (Valid values: AzurePublicCloud, AzureUSGovernmentCloud, AzureChinaCloud, AzureGermanCloud, Private; default: AzurePublicCloud)
+
+These parameters are used to configure and fine-tune the behavior of the Azure Service Bus Scaler for autoscaling your application based on the message count in Azure Service Bus.
+
+
 # KEDA Scaling :
 please refer : https://keda.sh/docs/2.10/concepts/scaling-deployments/
 #  Monitor and Observe
