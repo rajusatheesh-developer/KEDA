@@ -155,6 +155,46 @@ These parameters are used to configure and fine-tune the behavior of the Azure S
 
 
 # KEDA Scaling :
+# Scaling of Deployments and StatefulSets
+
+Deployments and StatefulSets are the most common way to scale workloads with KEDA.
+
+It allows you to define the Kubernetes Deployment or StatefulSet that you want KEDA to scale based on a scale trigger. KEDA will monitor that service and based on the events that occur it will automatically scale your resource out/in accordingly.
+
+Behind the scenes, KEDA acts to monitor the event source and feed that data to Kubernetes and the HPA (Horizontal Pod Autoscaler) to drive rapid scale of a resource. Each replica of a resource is actively pulling items from the event source. With KEDA and scaling Deployments/StatefulSet you can scale based on events while also preserving rich connection and processing semantics with the event source (e.g. in-order processing, retries, deadletter, checkpointing).
+
+For example, if you wanted to use KEDA with an Apache Kafka topic as an event source, the flow of information would be:
+
+- When no messages are pending processing, KEDA can scale the deployment to zero.
+- When a message arrives, KEDA detects this event and activates the deployment.
+- When the deployment starts running, one of the containers connects to Kafka and starts pulling messages.
+- As more messages arrive at the Kafka Topic, KEDA can feed this data to the HPA to drive scale out.
+- Each replica of the deployment is actively processing messages. Very likely, each replica is processing a batch of messages in a distributed manner.
+
+# KEDA Configuration Parameters
+
+This document describes two important configuration parameters for KEDA.
+
+## pollingInterval
+
+- **pollingInterval:** 30  <!-- Optional. Default: 30 seconds -->
+
+   This is the interval to check each trigger on. By default, KEDA will check each trigger source on every ScaledObject every 30 seconds.
+
+   *Example:* In a queue scenario, KEDA will check the `queueLength` every `pollingInterval`, and scale the resource up or down accordingly.
+
+## cooldownPeriod
+
+- **cooldownPeriod:** 300  <!-- Optional. Default: 300 seconds -->
+
+   The period to wait after the last trigger reported active before scaling the resource back to 0. By default, it's 5 minutes (300 seconds).
+
+   The `cooldownPeriod` only applies after a trigger occurs; when you first create your Deployment (or StatefulSet/CustomResource), KEDA will immediately scale it to `minReplicaCount`. Additionally, the KEDA `cooldownPeriod` only applies when scaling to 0; scaling from 1 to N replicas is handled by the Kubernetes Horizontal Pod Autoscaler.
+
+   *Example:* Wait 5 minutes after the last time KEDA checked the queue, and it was empty (this is obviously dependent on `pollingInterval`).
+
+
+
 please refer : https://keda.sh/docs/2.10/concepts/scaling-deployments/
 #  Monitor and Observe
 
