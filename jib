@@ -1,0 +1,21 @@
+<plugin>
+    <groupId>com.google.cloud.tools</groupId>
+    <artifactId>jib-maven-plugin</artifactId>
+    <version>${jib-maven-plugin.version}</version>
+    <configuration>
+        <container>
+            <jvmFlags>
+                <jvmFlag>-Djavax.net.ssl.trustStore=/path/in/container/keystore.jks</jvmFlag>
+                <jvmFlag>-Djavax.net.ssl.trustStorePassword=your_password</jvmFlag>
+            </jvmFlags>
+        </container>
+        <extraDirectories>
+            <paths>
+                <path>
+                    <from>${project.basedir}/src/main/resources/keystore.jks</from>
+                    <into>/path/in/container/</into>
+                </path>
+            </paths>
+        </extraDirectories>
+    </configuration>
+</plugin>
