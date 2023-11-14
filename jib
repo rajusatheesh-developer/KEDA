@@ -19,3 +19,8 @@
         </extraDirectories>
     </configuration>
 </plugin>
+
+
+
+keytool -genkeypair -alias mykey -keyalg RSA -keystore keystore.jks -storepass password -validity 365 -keysize 2048
+keytool -export -alias mykey -file certificate.crt -keystore keystore.jks -storepass password
